@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 def main():
     parser = argparse.ArgumentParser(description="批量音频推理脚本")
-    parser.add_argument("--model_path", type=str, default="/share/nlp/tuwenming/models/moonshotai/Kimi-Audio-7B", 
+    parser.add_argument("--model_path", type=str, default="/share/nlp/tuwenming/models/moonshotai/Kimi-Audio-7B-Instruct", 
                        help="模型路径")
     parser.add_argument("--test_jsonl", type=str, default="/share/nlp/tuwenming/projects/UltraVoice_dev/eval/ultravoice_testset.jsonl",
                        help="测试数据jsonl文件路径")
