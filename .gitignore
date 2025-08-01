@@ -178,3 +178,5 @@ conf
 test_audios/output
 output/
 output
+*.json
+*.jsonl
