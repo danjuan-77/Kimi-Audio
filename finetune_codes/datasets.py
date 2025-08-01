@@ -95,7 +95,7 @@ class LazySupervisedDataset(Dataset):
 
             if role == "assistant":
                 kimia_content_msg.text_append(self.extra_tokens.kimia_text_eos, has_loss) # eos for text stream
-                kimia_content_msg.audio_append(self.extra_tokens.kimia_text_blank, audio_token_loss_mask=False)
+                kimia_content_msg.audio_append(self.extra_tokens.kimia_text_blank, audio_token_loss_mask=True)
 
         elif message["message_type"] == "audio":
             speech_tokens = message["audio_tokens"]
