@@ -34,6 +34,28 @@ The data format is as follows (we use ASR task as an example):
 }
 ```
 
+### Speech-to-Speech
+
+For speech-to-speech tasks, the data format is as follows:
+
+```json
+{
+    "task_type": "speech2speech",
+    "conversation": [
+        {
+            "role": "user",
+            "message_type": "audio",
+            "content": # Input Audio Path
+        },
+        {
+            "role": "assistant",
+            "message_type": "audio",
+            "content": # Output Audio Path
+        }
+    ]
+}
+```
+
 * Librispeech ASR task as an example:
 ``` bash
 python finetune_codes/demo_data/audio_understanding/prepare_librispeech_asrtask.py --output_dir "output/data/librispeech"
@@ -79,6 +101,11 @@ CUDA_VISIBLE_DEVICES=0 python -m finetune_codes.check_sft_infer
 
 # Note
 
-In this example, we support the ASR task. For other task such as speech conversation or text-to-speech, you might need to change the `tokenize_message` function in `finetune_codes/datasets.py`.
+In this example, we support the ASR task and speech-to-speech task. For other tasks such as speech conversation or text-to-speech with text prompts, you might need to change the `tokenize_message` function in `finetune_codes/datasets.py`.
+
+For speech-to-speech tasks, make sure to:
+1. Prepare your data in the format shown above with `task_type: "speech2speech"`
+2. Ensure both input and output audio files are accessible at the specified paths
+3. Run the semantic code extraction on both input and output audio files
 
 The hyper-parameters in `finetune_codes/finetune_ds.sh` should be tuned in new task because of the differences in task and dataset size.

@@ -17,7 +17,7 @@ class LazySupervisedDataset(Dataset):
         print("There are {} samples in the dataset".format(len(raw_data_list)))
         self.whisper_model = whisper_model
 
-        print(f"Loading text tokenizer")
+        print("Loading text tokenizer")
         self.text_tokenizer = text_tokenizer
 
         self.extra_tokens = instantiate_extra_tokens(self.text_tokenizer)
@@ -110,7 +110,11 @@ class LazySupervisedDataset(Dataset):
             if has_ct_token:
                 if output_type == "text":
                     kimia_content_msg.audio_append(self.extra_tokens.kimia_speech_ct_id)
-                else:
+                elif output_type == "audio":
+                    kimia_content_msg.audio_append(
+                        self.extra_tokens.kimia_speech_ctd_id
+                    )
+                else:  # output_type == "both"
                     kimia_content_msg.audio_append(
                         self.extra_tokens.kimia_speech_ctd_id
                     )
@@ -119,7 +123,7 @@ class LazySupervisedDataset(Dataset):
             if extract_whisper_feature:
                 whisper_feature = self.extract_whisper_feat(message["content"])
                 kimia_content_msg.continuous_feature.append(whisper_feature)
-        elif message["message_type"] == None:
+        elif message["message_type"] is None:
             pass
         else:
             raise NotImplementedError(f"message_type: {message['message_type']}")
@@ -144,7 +148,7 @@ class LazySupervisedDataset(Dataset):
             "content": str
         }
         """
-        assert output_type in ["text", "both"]
+        assert output_type in ["text", "both", "audio"]
 
         msgs: List[KimiAContent] = []
         tokenize_role = True
@@ -212,7 +216,12 @@ class LazySupervisedDataset(Dataset):
         task_type = self.raw_data[i]["task_type"]
         conversation = self.raw_data[i]["conversation"]
 
-        output_type = "text" if task_type == "understanding" else "both"
+        if task_type == "understanding":
+            output_type = "text"
+        elif task_type == "speech2speech":
+            output_type = "audio"
+        else:
+            output_type = "both"
 
         tokenized_conversation = self.tokenize_conversation(conversation, output_type=output_type, add_assistant_start_msg=False)
 
