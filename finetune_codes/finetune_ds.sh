@@ -23,7 +23,7 @@ MASTER_ADDR=${MASTER_ADDR:-localhost}
 # The port for communication
 MASTER_PORT=${MASTER_PORT:-6001}
 
-MODEL="moonshotai/Kimi-Audio-7B" # Set the path if you do not want to load from huggingface directly
+MODEL="/share/nlp/tuwenming/models/moonshotai/Kimi-Audio-7B-Instruct" # Set the path if you do not want to load from huggingface directly
 
 PRETRAINED_MODEL_PATH=""
 
