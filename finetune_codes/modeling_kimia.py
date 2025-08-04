@@ -692,8 +692,9 @@ class MoonshotKimiaModel(Qwen2PreTrainedModel):
 
                     feat_len = end_idx - (start_idx + 1)
                     whisper_input_feature_i = whisper_input_feature[seg_idx].squeeze(0)
-                    print(f"feat_len:{feat_len}, \n is_continuous_mask[seg_idx].sum():{is_continuous_mask[seg_idx].sum()}")
-                    assert feat_len == is_continuous_mask[seg_idx].sum()
+                    segment_continuous_count = is_continuous_mask[0, start_idx + 1 : end_idx].sum()
+                    print(f"feat_len:{feat_len}, \n segment_continuous_count:{segment_continuous_count}")
+                    assert feat_len == segment_continuous_count
                     expanded_whisper[start_idx + 1 : end_idx, :] = (
                         whisper_input_feature_i[:feat_len, :]
                     )
