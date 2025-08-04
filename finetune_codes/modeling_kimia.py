@@ -692,9 +692,13 @@ class MoonshotKimiaModel(Qwen2PreTrainedModel):
 
                     feat_len = end_idx - (start_idx + 1)
                     whisper_input_feature_i = whisper_input_feature[seg_idx].squeeze(0)
+                    # whisper feature has been reshaped to 1/4 length in model.py
+                    whisper_feat_len = whisper_input_feature_i.shape[0]
+                    print(f"feat_len:{feat_len}, \n is_continuous_mask[seg_idx].sum():{is_continuous_mask[seg_idx].sum()}")
                     assert feat_len == is_continuous_mask[seg_idx].sum()
+                    assert whisper_feat_len * 4 == feat_len, f"Whisper feature length {whisper_feat_len} * 4 != audio token length {feat_len}"
                     expanded_whisper[start_idx + 1 : end_idx, :] = (
-                        whisper_input_feature_i[:feat_len, :]
+                        whisper_input_feature_i[:whisper_feat_len, :].repeat_interleave(4, dim=0)
                     )
 
                 expanded_whisper = expanded_whisper.unsqueeze(0)
