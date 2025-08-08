@@ -692,16 +692,9 @@ class MoonshotKimiaModel(Qwen2PreTrainedModel):
 
                     feat_len = end_idx - (start_idx + 1)
                     whisper_input_feature_i = whisper_input_feature[seg_idx].squeeze(0)
-                    segment_continuous_count = is_continuous_mask[0, start_idx + 1 : end_idx].sum()
-                    
-                    # 获取实际的whisper特征长度
-                    actual_whisper_len = whisper_input_feature_i.shape[0]
-                    print(f"feat_len:{feat_len}, segment_continuous_count:{segment_continuous_count}, actual_whisper_len:{actual_whisper_len}")
-                    
-                    # 使用实际可用的特征长度，避免越界
-                    use_len = min(feat_len, actual_whisper_len)
-                    expanded_whisper[start_idx + 1 : start_idx + 1 + use_len, :] = (
-                        whisper_input_feature_i[:use_len, :]
+                    assert feat_len == is_continuous_mask[seg_idx].sum()
+                    expanded_whisper[start_idx + 1 : end_idx, :] = (
+                        whisper_input_feature_i[:feat_len, :]
                     )
 
                 expanded_whisper = expanded_whisper.unsqueeze(0)
