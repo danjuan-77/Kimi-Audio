@@ -17,7 +17,7 @@ class LazySupervisedDataset(Dataset):
         print("There are {} samples in the dataset".format(len(raw_data_list)))
         self.whisper_model = whisper_model
 
-        print("Loading text tokenizer")
+        print(f"Loading text tokenizer")
         self.text_tokenizer = text_tokenizer
 
         self.extra_tokens = instantiate_extra_tokens(self.text_tokenizer)
@@ -97,16 +97,6 @@ class LazySupervisedDataset(Dataset):
                 kimia_content_msg.text_append(self.extra_tokens.kimia_text_eos, has_loss) # eos for text stream
                 kimia_content_msg.audio_append(self.extra_tokens.kimia_text_blank, audio_token_loss_mask=False)
 
-                # 当需要在 text 输出处同时触发音频输出时，向音频流追加 CT/CTD 标记
-                if has_ct_token:
-                    if output_type == "text":
-                        kimia_content_msg.audio_append(self.extra_tokens.kimia_speech_ct_id)
-                    else:
-                        kimia_content_msg.audio_append(
-                            self.extra_tokens.kimia_speech_ctd_id
-                        )
-                    kimia_content_msg.text_append(self.extra_tokens.kimia_text_blank)
-
         elif message["message_type"] == "audio":
             speech_tokens = message["audio_tokens"]
 
@@ -129,7 +119,7 @@ class LazySupervisedDataset(Dataset):
             if extract_whisper_feature:
                 whisper_feature = self.extract_whisper_feat(message["content"])
                 kimia_content_msg.continuous_feature.append(whisper_feature)
-        elif message["message_type"] is None:
+        elif message["message_type"] == None:
             pass
         else:
             raise NotImplementedError(f"message_type: {message['message_type']}")
@@ -151,10 +141,7 @@ class LazySupervisedDataset(Dataset):
         messages: List[Dict]
         messages[i] = {
             "role": "user" | "assistant" | "system",
-            "message_type": "text" | "audio" | None,
-            "content": str | None,
-            # optional when message_type == "audio":
-            # "audio_tokens": List[int]
+            "content": str
         }
         """
         assert output_type in ["text", "both"]
@@ -180,11 +167,7 @@ class LazySupervisedDataset(Dataset):
                 has_ct_token = True
                 has_msg_end_token = True
             else:
-                next_msg = messages[msg_idx + 1]
-                # 当角色变化或消息类型变化时，结束当前消息并插入 CT 标记
-                if (next_msg["role"] != message["role"]) or (
-                    next_msg.get("message_type") != message.get("message_type")
-                ):
+                if messages[msg_idx + 1]["role"] != message["role"]:
                     has_ct_token = True
                     has_msg_end_token = True
                 else:
